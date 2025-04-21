@@ -17,6 +17,9 @@ importers:
       '@nestjs/platform-express':
         specifier: ^11.0.1
         version: 11.0.20(@nestjs/common@11.0.20(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.0.20)
+      prettier:
+        specifier: ^3.5.3
+        version: 3.5.3
       reflect-metadata:
         specifier: ^0.2.2
         version: 0.2.2
@@ -72,9 +75,6 @@ importers:
       jest:
         specifier: ^29.7.0
         version: 29.7.0(@types/node@22.14.1)(ts-node@10.9.2(@swc/core@1.11.21)(@types/node@22.14.1)(typescript@5.8.3))
-      prettier:
-        specifier: ^3.4.2
-        version: 3.5.3
       source-map-support:
         specifier: ^0.5.21
         version: 0.5.21
