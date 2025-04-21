@@ -1,44 +1,72 @@
-import { Injectable } from '@nestjs/common';
-import { Timer } from './interface/timer';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { PrismaService } from '../prisma.service';
+import { Timer, Prisma } from '../../generated/prisma';
+import { CreateTimerDto } from './dto/create-timer.dto';
+import { UpdateTimerDto } from './dto/update-timer.dto';
 
 @Injectable()
 export class TimerService {
-    private readonly timer: Timer[] = [
-        {
-            id: '1',
-            title: 'Project Deadline',
-            description: 'Finish the final report for the project.',
-            dueDate: new Date('2025-05-15T23:59:59'),
-            category: 'Work',
-            isArchived: false,
-        },
-        {
-            id: '2',
-            title: 'Birthday Party Prep',
-            description: 'Buy cake and decorations.',
-            dueDate: new Date('2025-04-25T18:00:00'),
-            category: 'Personal',
-            isArchived: false,
-        },
-        {
-            id: '3',
-            title: 'Vacation Countdown',
-            description: 'Trip to Hawaii!',
-            dueDate: new Date('2025-07-01T08:00:00'),
-            category: 'Travel',
-            isArchived: false,
-        },
-        {
-            id: '4',
-            title: 'Old Task',
-            description: 'Something already done.',
-            dueDate: new Date('2024-01-10T10:00:00'),
-            category: 'Work',
-            isArchived: true,
-        }
-    ];
+    constructor(private readonly prisma: PrismaService) {}
 
-    getAll(): Timer[] {
-        return this.timer;
+    async create(createTimerDto: CreateTimerDto): Promise<Timer> {
+        const { dueDate, ...rest } = createTimerDto;
+        return this.prisma.timer.create({
+            data: {
+                ...rest,
+                dueDate: new Date(dueDate),
+            },
+        });
+    }
+
+    async findAll(): Promise<Timer[]> {
+        return this.prisma.timer.findMany();
+    }
+
+    async findOne(id: number): Promise<Timer | null> {
+        const timer = await this.prisma.timer.findUnique({
+            where: { id },
+        });
+        if (!timer) {
+            throw new NotFoundException(`Timer with ID "${id}" not found`);
+        }
+        return timer;
+    }
+
+    async update(id: number, updateTimerDto: UpdateTimerDto): Promise<Timer> {
+        const { dueDate, ...rest } = updateTimerDto;
+        const dataToUpdate: any = { ...rest };
+        if (dueDate) {
+            dataToUpdate.dueDate = new Date(dueDate);
+        }
+
+        try {
+            return await this.prisma.timer.update({
+                where: { id },
+                data: dataToUpdate,
+            });
+        } catch (error) {
+            // Check if it's a Prisma record not found error
+            // P2025: "An operation failed because it depends on one or more records that were required but not found. {cause}"
+            if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
+                throw new NotFoundException(`Timer with ID "${id}" not found`);
+            }
+            // Re-throw other types of errors
+            throw error;
+        }
+    }
+    async remove(id: number): Promise<Timer> {
+        try {
+            return await this.prisma.timer.delete({
+                where: { id },
+            });
+        } catch (error) {
+            // Check if it's a Prisma record not found error
+            // P2025: "An operation failed because it depends on one or more records that were required but not found. {cause}"
+            if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
+                throw new NotFoundException(`Timer with ID "${id}" not found`);
+            }
+            // Re-throw other types of errors
+            throw error;
+        }
     }
 }

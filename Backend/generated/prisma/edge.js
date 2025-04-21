@@ -123,7 +123,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "D:\\Github_repo\\Personal projects\\Countdown-timer-website\\Backend\\generated\\prisma",
+      "value": "/Users/zenonist/Desktop/Github/Countdown-timer-website/Backend/generated/prisma",
       "fromEnvVar": null
     },
     "config": {
@@ -132,17 +132,16 @@ const config = {
     "binaryTargets": [
       {
         "fromEnvVar": null,
-        "value": "windows",
+        "value": "darwin-arm64",
         "native": true
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "D:\\Github_repo\\Personal projects\\Countdown-timer-website\\Backend\\prisma\\schema.prisma",
+    "sourceFilePath": "/Users/zenonist/Desktop/Github/Countdown-timer-website/Backend/prisma/schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
-    "rootEnvPath": null,
-    "schemaEnvPath": "../../.env"
+    "rootEnvPath": null
   },
   "relativePath": "../../prisma",
   "clientVersion": "6.6.0",

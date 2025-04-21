@@ -1,5 +1,5 @@
 export interface Timer {
-  id: string;
+  id: number;
   title: string;
   description: string;
   dueDate: Date;
