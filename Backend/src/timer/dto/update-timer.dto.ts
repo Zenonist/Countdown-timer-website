@@ -21,4 +21,3 @@ export class UpdateTimerDto {
   @IsBoolean()
   isArchived?: boolean;
 }
-

@@ -1,4 +1,13 @@
-import { Controller, Get, Post, Body, Param, Delete, Patch, ParseIntPipe } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Delete,
+  Patch,
+  ParseIntPipe,
+} from '@nestjs/common';
 import { TimerService } from './timer.service';
 import { CreateTimerDto } from './dto/create-timer.dto';
 import { UpdateTimerDto } from './dto/update-timer.dto';
@@ -6,7 +15,7 @@ import { Timer } from '../../generated/prisma'; // Correct import path
 
 @Controller('timer')
 export class TimerController {
-    constructor(private readonly timerService: TimerService) {}
+  constructor(private readonly timerService: TimerService) {}
 
   @Post()
   create(@Body() createTimerDto: CreateTimerDto): Promise<Timer> {
@@ -24,7 +33,10 @@ export class TimerController {
   }
 
   @Patch(':id')
-  update(@Param('id', ParseIntPipe) id: number, @Body() updateTimerDto: UpdateTimerDto): Promise<Timer> {
+  update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateTimerDto: UpdateTimerDto,
+  ): Promise<Timer> {
     return this.timerService.update(id, updateTimerDto);
   }
 
