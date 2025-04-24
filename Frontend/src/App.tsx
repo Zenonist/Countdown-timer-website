@@ -1,35 +1,32 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState } from "react";
+import "./App.css";
+import Navbar from "./components/Navbar";
+import Button from "@mui/material/Button";
+import Countdown from "./components/Countdown";
+import { mock_data } from "./mock/mockData";
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
+    <div>
+      <Navbar />
+      <div className="text-transparent text-4xl bg-gradient-to-b from-blue-500 to-purple-700 bg-clip-text">
+        Countdown timer website
+      </div>
       <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+        {mock_data.map((countdown) => (
+          <Countdown
+            key={countdown.id}
+            _title={countdown.title}
+            _description={countdown.description}
+            _category={countdown.category}
+            _dueDate={countdown.dueDate}
+          />
+        ))}
+
+        <Button variant="outlined">Add new countdown</Button>
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    </div>
+  );
 }
 
-export default App
+export default App;
