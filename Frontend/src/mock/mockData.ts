@@ -1,11 +1,11 @@
-import { CountdownFormat } from "../entity/countdownformat";
+import { CountdownFormat } from "../entity/CountdownFormat";
 
 const mock_data: CountdownFormat[] = [
     {
         id: 1,
         title: "Task 1",
         description: "Description for Task 1",
-        dueDate: new Date("2025-10-01T12:00:30Z"),
+        dueDate: new Date("2025-04-24T15:54:00Z"),
         category: "Work",
         isArchived: false,
     },
