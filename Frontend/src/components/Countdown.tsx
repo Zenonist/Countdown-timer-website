@@ -5,7 +5,7 @@ import {
   CardActions,
   CardContent,
   CardHeader,
-  Chip,
+  // Chip,
   Dialog,
   DialogActions,
   DialogContent,
@@ -24,17 +24,17 @@ import { DateTimePicker } from "@mui/x-date-pickers";
 function Countdown({
   _title,
   _description,
-  _category,
+  // _category,
   _dueDate,
 }: {
   _title: string;
   _description: string;
-  _category: string;
+  // _category: string;
   _dueDate: Date;
 }) {
   const [title, setTitle] = useState("Test");
   const [description, setDescription] = useState("Test description");
-  const [category, setCategory] = useState("Test category");
+  // const [category, setCategory] = useState("Test category");
   const [dueDate, setDueDate] = useState<Date | null>(null);
   const [timeLeft, setTimeLeft] = useState<TimeFormat>({
     days: 0,
@@ -47,7 +47,7 @@ function Countdown({
   const [openEdit, setOpenEdit] = useState(false);
   const [editTitle, setEditTitle] = useState(_title);
   const [editDescription, setEditDescription] = useState(_description);
-  const [editCategory, setEditCategory] = useState(_category);
+  // const [editCategory, setEditCategory] = useState(_category);
   const [editDueDate, setEditDueDate] = useState<Date | null>(_dueDate);
 
   // const [openDelete, setOpenDelete] = useState(false);
@@ -56,10 +56,14 @@ function Countdown({
   useEffect(() => {
     setTitle(_title);
     setDescription(_description);
-    setCategory(_category);
+    // setCategory(_category);
     setDueDate(_dueDate);
     setTimeLeft(calculateTimeLeft(new Date(_dueDate)));
-  }, [_title, _description, _category, _dueDate]);
+  }, [
+    _title, 
+    _description, 
+    // _category, 
+    _dueDate]);
 
   // Update time left every second
   useEffect(() => {
@@ -130,7 +134,7 @@ function Countdown({
     // Update the countdown with the new values
     setTitle(editTitle);
     setDescription(editDescription);
-    setCategory(editCategory);
+    // setCategory(editCategory);
     setDueDate(editDueDate);
     if (editDueDate) {
       setTimeLeft(calculateTimeLeft(editDueDate));
@@ -211,10 +215,10 @@ function Countdown({
           <div className="text-gray-900">
             <Typography variant="body1">Description: {description}</Typography>
           </div>
-          <div className="justify-right">
+          {/* <div className="justify-right">
             <Typography>Category:</Typography>
             <Chip label={category} color="primary" />
-          </div>
+          </div> */}
         </CardContent>
         <CardActions>
           <IconButton onClick={handleOpenEdit}>
@@ -247,7 +251,7 @@ function Countdown({
                   margin="dense"
                   onChange={handleInputChange}
                 />
-                {/* Category */}
+                {/* Category
                 <TextField
                   id="category"
                   label="Category"
@@ -256,7 +260,7 @@ function Countdown({
                   fullWidth
                   margin="dense"
                   onChange={handleInputChange}
-                />
+                /> */}
                 {/* Date picker */}
                 <DateTimePicker
                   label="Due date"
@@ -269,14 +273,12 @@ function Countdown({
                 />
               </DialogContent>
               <DialogActions>
-                <Button type="submit">
-                  Edit
-                </Button>
+                <Button type="submit">Edit</Button>
                 <Button onClick={handleCloseEdit}>Cancel</Button>
               </DialogActions>
             </form>
           </Dialog>
-          
+
           <IconButton>
             <DeleteIcon />
           </IconButton>
