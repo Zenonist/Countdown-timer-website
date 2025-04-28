@@ -1,0 +1,214 @@
+openapi: 3.0.4
+info:
+  title: Countdown timer
+  description: This is API documentation for countdown timer project
+  version: "1.0"
+servers:
+  - url: http://localhost:3000
+tags:
+  - name: timer
+    description: Operations about timer
+paths:
+  /timer:
+    get:
+      tags:
+        - timer
+      summary: Get all countdown timers
+      description: Get all timers in the database
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AllTimer'
+              examples:
+                timer:
+                  $ref: '#/components/examples/TimerResultExample'
+                  
+    post:
+      tags:
+        - timer
+      summary: Create new countdown timer
+      description: Create new countdown timer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTimer'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Timer'
+              examples:
+                timer:
+                  $ref: '#/components/examples/TimerResultExample'
+  
+  /timer/{id}:
+    get:
+      tags:
+        - timer
+      summary: Get countdown timer by specific id
+      description: Retrieve a specific countdown timer by its ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of countdown timer
+          schema:
+            type: number
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Timer'
+              examples:
+                timer:
+                  $ref: '#/components/examples/TimerResultExample'
+    
+    patch:
+      tags:
+        - timer
+      summary: Edit countdown timer
+      description: Edit specific countdown timer
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of countdown timer
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EditTimer'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Timer'
+              examples:
+                Timer:
+                  $ref: '$components/examples/TimerResultExample'
+    
+    delete:
+      tags:
+        - timer
+      summary: Detele specific countdown timer
+      description: Delete countdown timer by using ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of countdown timer
+          schema:
+            type: number
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Timer'
+              examples:
+                Timer:
+                  $ref: '#/components/examples/TimerResultExample'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  error:
+                    type: string
+                  statusCode:
+                    type: number
+              example:
+                message: Timer with ID \"1\" not found
+                error: Not Found
+                statusCode: 404
+                
+                
+
+components:
+  schemas:
+    Timer:
+      type: object
+      properties:
+        id:
+          type: number
+        title:
+          type: string
+        description:
+          type: string
+        dueDate:
+          type: string
+          format: date-time
+        category:
+          type: string
+        isArchived:
+          type: boolean
+
+    AllTimer:
+      type: array
+      items:
+        $ref: '#/components/schemas/Timer'
+
+    CreateTimer:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        dueDate:
+          type: string
+          format: date-time
+        category:
+          type: string
+        isArchived:
+          type: boolean
+      required:
+        - title
+        - description
+        - dueDate
+        - category
+        
+    EditTimer:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        dueDate:
+          type: string
+          format: date-time
+        category:
+          type: string
+        isArchived:
+          type: boolean
+
+  examples:
+    TimerResultExample:
+      summary: A sample timer
+      value:
+        id: 1
+        title: First countdown
+        description: my new countdown
+        dueDate: 2025-12-12T10:00:00.000Z
+        category: Personal
+        isArchived: false
