@@ -33,7 +33,7 @@ export default tseslint.config(
         'error',
         {
           'singleQuote': true,
-          "endOfLine": "lf",
+          "endOfLine": "auto",
         },
       ],
 
