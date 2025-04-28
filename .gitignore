@@ -63,6 +63,7 @@ Frontend/node_modules
 Frontend/dist
 Frontend/dist-ssr
 Frontend/*.local
+Frontend/.vite
 
 # Editor directories and files
 .vscode/*
