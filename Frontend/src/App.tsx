@@ -36,10 +36,12 @@ function App() {
         {countdowns.map((countdown) => (
           <Countdown
             key={countdown.id}
+            _id={countdown.id}
             _title={countdown.title}
             _description={countdown.description}
             _category={countdown.category}
             _dueDate={countdown.dueDate}
+            onDelete={() => getCountdowns()}
           />
         ))}
       </div>

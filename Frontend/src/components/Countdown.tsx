@@ -24,15 +24,19 @@ import { DateTimePicker } from "@mui/x-date-pickers";
 import axios from "axios";
 
 function Countdown({
+  _id,
   _title,
   _description,
   _category,
   _dueDate,
+  onDelete
 }: {
+  _id: number;
   _title: string;
   _description: string;
   _category: string;
   _dueDate: Date;
+  onDelete?: () => void;
 }) {
   const [title, setTitle] = useState("Test");
   const [description, setDescription] = useState("Test description");
@@ -52,7 +56,7 @@ function Countdown({
   const [editCategory, setEditCategory] = useState(_category);
   const [editDueDate, setEditDueDate] = useState<Date | null>(_dueDate);
 
-  // const [openDelete, setOpenDelete] = useState(false);
+  const [openDelete, setOpenDelete] = useState(false);
 
   // Initialize state with props
   useEffect(() => {
@@ -61,11 +65,7 @@ function Countdown({
     setCategory(_category);
     setDueDate(_dueDate);
     setTimeLeft(calculateTimeLeft(new Date(_dueDate)));
-  }, [
-    _title, 
-    _description, 
-    _category, 
-    _dueDate]);
+  }, [_title, _description, _category, _dueDate]);
 
   // Update time left every second
   useEffect(() => {
@@ -132,29 +132,54 @@ function Countdown({
     // Prevent default form submission -> prevent page reload which is the default behavior of a form
     event.preventDefault();
 
-    axios.post(import.meta.env.VITE_BACKEND_URL + "/" + encodeURIComponent("timer"), {
-      title: editTitle,
-      description: editDescription,
-      category: editCategory,
-      dueDate: editDueDate,
-    }).then(() => {
-      // Update the countdown with the new values
-      setTitle(editTitle);
-      setDescription(editDescription);
-      setCategory(editCategory);
-      setDueDate(editDueDate);
-      if (editDueDate) {
-        setTimeLeft(calculateTimeLeft(editDueDate));
-      } else {
-        console.warn("editDueDate is null, using current date as fallback.");
-        setTimeLeft(calculateTimeLeft(new Date()));
-      }
-      handleCloseEdit();
-    }).catch((error: unknown) => {
-      console.error("Error updating countdown:", error);
-      handleCloseEdit();
-    });
-  }
+    axios
+      .post(
+        import.meta.env.VITE_BACKEND_URL + "/" + encodeURIComponent("timer"),
+        {
+          title: editTitle,
+          description: editDescription,
+          category: editCategory,
+          dueDate: editDueDate,
+        }
+      )
+      .then(() => {
+        // Update the countdown with the new values
+        setTitle(editTitle);
+        setDescription(editDescription);
+        setCategory(editCategory);
+        setDueDate(editDueDate);
+        if (editDueDate) {
+          setTimeLeft(calculateTimeLeft(editDueDate));
+        } else {
+          console.warn("editDueDate is null, using current date as fallback.");
+          setTimeLeft(calculateTimeLeft(new Date()));
+        }
+        handleCloseEdit();
+      })
+      .catch((error: unknown) => {
+        console.error("Error updating countdown:", error);
+        handleCloseEdit();
+      });
+  };
+
+  const deleteCountdown = () => {
+    axios
+      .delete(
+        import.meta.env.VITE_BACKEND_URL + "/" + encodeURIComponent("timer") + "/" + encodeURIComponent(_id),
+        {}
+      )
+      .then(() => {
+        console.log("Countdown deleted");
+        if (onDelete) {
+          onDelete();
+        }
+        setOpenDelete(false);
+      })
+      .catch((error: unknown) => {
+        console.error("Error deleting countdown:", error);
+        setOpenDelete(false);
+      });
+  };
 
   return (
     <div className="flex justify-center items-center w-full p-4 md:p-4">
@@ -286,9 +311,33 @@ function Countdown({
             </form>
           </Dialog>
 
-          <IconButton>
+          <IconButton onClick={() => setOpenDelete(true)}>
             <DeleteIcon />
           </IconButton>
+          <Dialog open={openDelete} onClose={() => setOpenDelete(false)}>
+            <DialogTitle>Delete countdown timer</DialogTitle>
+            <DialogContent>
+              <DialogContentText>
+                Are you sure you want to delete this countdown timer?
+              </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+              <Button
+                sx={{
+                  backgroundColor: "red",
+                  color: "white",
+                  "&:hover": {
+                    backgroundColor: "darkred",
+                  },
+                }}
+                variant="contained"
+                onClick={deleteCountdown}
+              >
+                Delete
+              </Button>
+              <Button onClick={() => setOpenDelete(false)}>Cancel</Button>
+            </DialogActions>
+          </Dialog>
         </CardActions>
       </Card>
     </div>
