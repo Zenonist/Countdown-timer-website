@@ -5,6 +5,7 @@ import {
   CardActions,
   CardContent,
   CardHeader,
+  Chip,
   // Chip,
   Dialog,
   DialogActions,
@@ -20,21 +21,22 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import { useEffect, useState } from "react";
 import TimeFormat from "../entity/TimeFormat";
 import { DateTimePicker } from "@mui/x-date-pickers";
+import axios from "axios";
 
 function Countdown({
   _title,
   _description,
-  // _category,
+  _category,
   _dueDate,
 }: {
   _title: string;
   _description: string;
-  // _category: string;
+  _category: string;
   _dueDate: Date;
 }) {
   const [title, setTitle] = useState("Test");
   const [description, setDescription] = useState("Test description");
-  // const [category, setCategory] = useState("Test category");
+  const [category, setCategory] = useState("Test category");
   const [dueDate, setDueDate] = useState<Date | null>(null);
   const [timeLeft, setTimeLeft] = useState<TimeFormat>({
     days: 0,
@@ -47,7 +49,7 @@ function Countdown({
   const [openEdit, setOpenEdit] = useState(false);
   const [editTitle, setEditTitle] = useState(_title);
   const [editDescription, setEditDescription] = useState(_description);
-  // const [editCategory, setEditCategory] = useState(_category);
+  const [editCategory, setEditCategory] = useState(_category);
   const [editDueDate, setEditDueDate] = useState<Date | null>(_dueDate);
 
   // const [openDelete, setOpenDelete] = useState(false);
@@ -56,13 +58,13 @@ function Countdown({
   useEffect(() => {
     setTitle(_title);
     setDescription(_description);
-    // setCategory(_category);
+    setCategory(_category);
     setDueDate(_dueDate);
     setTimeLeft(calculateTimeLeft(new Date(_dueDate)));
   }, [
     _title, 
     _description, 
-    // _category, 
+    _category, 
     _dueDate]);
 
   // Update time left every second
@@ -116,10 +118,9 @@ function Countdown({
       setEditTitle(value);
     } else if (id === "description") {
       setEditDescription(value);
+    } else if (id === "category") {
+      setEditCategory(value);
     }
-    //  else if (id === "category") {
-    //   setEditCategory(value);
-    // }
   };
 
   const handleDateChange = (newDate: Date | null) => {
@@ -128,27 +129,32 @@ function Countdown({
   };
 
   const handleEditSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    console.log("Edit form submitted");
-
     // Prevent default form submission -> prevent page reload which is the default behavior of a form
     event.preventDefault();
-    // Update the countdown with the new values
-    setTitle(editTitle);
-    setDescription(editDescription);
-    // setCategory(editCategory);
-    setDueDate(editDueDate);
-    if (editDueDate) {
-      setTimeLeft(calculateTimeLeft(editDueDate));
-    } else {
-      console.warn("editDueDate is null, using current date as fallback.");
-      setTimeLeft(calculateTimeLeft(new Date()));
-    }
 
-    // TODO: Add API request to update the countdown in the database
-
-    // Close the dialog after successful submission
-    handleCloseEdit();
-  };
+    axios.post(import.meta.env.VITE_BACKEND_URL + "/" + encodeURIComponent("timer"), {
+      title: editTitle,
+      description: editDescription,
+      category: editCategory,
+      dueDate: editDueDate,
+    }).then(() => {
+      // Update the countdown with the new values
+      setTitle(editTitle);
+      setDescription(editDescription);
+      setCategory(editCategory);
+      setDueDate(editDueDate);
+      if (editDueDate) {
+        setTimeLeft(calculateTimeLeft(editDueDate));
+      } else {
+        console.warn("editDueDate is null, using current date as fallback.");
+        setTimeLeft(calculateTimeLeft(new Date()));
+      }
+      handleCloseEdit();
+    }).catch((error: unknown) => {
+      console.error("Error updating countdown:", error);
+      handleCloseEdit();
+    });
+  }
 
   return (
     <div className="flex justify-center items-center w-full p-4 md:p-4">
@@ -216,10 +222,10 @@ function Countdown({
           <div className="text-gray-900">
             <Typography variant="body1">Description: {description}</Typography>
           </div>
-          {/* <div className="justify-right">
+          <div className="justify-right">
             <Typography>Category:</Typography>
             <Chip label={category} color="primary" />
-          </div> */}
+          </div>
         </CardContent>
         <CardActions>
           <IconButton onClick={handleOpenEdit}>
@@ -252,7 +258,7 @@ function Countdown({
                   margin="dense"
                   onChange={handleInputChange}
                 />
-                {/* Category
+                {/* Category */}
                 <TextField
                   id="category"
                   label="Category"
@@ -261,7 +267,7 @@ function Countdown({
                   fullWidth
                   margin="dense"
                   onChange={handleInputChange}
-                /> */}
+                />
                 {/* Date picker */}
                 <DateTimePicker
                   label="Due date"

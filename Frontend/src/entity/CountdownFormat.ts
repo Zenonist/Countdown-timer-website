@@ -3,6 +3,6 @@ export type CountdownFormat = {
     title: string;
     description: string;
     dueDate: Date;
-    // category: string;
+    category: string;
     isArchived: boolean;
 }

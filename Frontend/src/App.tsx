@@ -1,16 +1,20 @@
 import "./App.css";
 import Navbar from "./components/Navbar";
-import Button from "@mui/material/Button";
 import Countdown from "./components/Countdown";
 import axios from "axios";
 import { mock_data } from "./mock/mockData";
 import { useEffect, useState } from "react";
 import { CountdownFormat } from "./entity/CountdownFormat";
+import CreateButton from "./components/CreateButton";
 
 function App() {
   const [countdowns, setCountdowns] = useState<CountdownFormat[]>([]);
 
   useEffect(() => {
+    getCountdowns();
+  },[])
+
+  const getCountdowns = () => {
     const URL = import.meta.env.VITE_BACKEND_URL + "/" + encodeURIComponent("timer");
     axios.get(URL)
       .then((response) => {
@@ -20,7 +24,7 @@ function App() {
         console.error("Error fetching data:", error);
         setCountdowns(mock_data);
       })
-  },[])
+  }
 
   return (
     <div>
@@ -34,12 +38,12 @@ function App() {
             key={countdown.id}
             _title={countdown.title}
             _description={countdown.description}
+            _category={countdown.category}
             _dueDate={countdown.dueDate}
           />
         ))}
-
-        <Button variant="outlined">Add new countdown</Button>
       </div>
+      <CreateButton onCreate={() => getCountdowns()}/>
     </div>
   );
 }
