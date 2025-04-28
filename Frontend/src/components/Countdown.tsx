@@ -116,9 +116,10 @@ function Countdown({
       setEditTitle(value);
     } else if (id === "description") {
       setEditDescription(value);
-    } else if (id === "category") {
-      setEditCategory(value);
     }
+    //  else if (id === "category") {
+    //   setEditCategory(value);
+    // }
   };
 
   const handleDateChange = (newDate: Date | null) => {
