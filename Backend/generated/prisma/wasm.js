@@ -122,8 +122,14 @@ exports.Prisma.TimerScalarFieldEnum = {
   title: 'title',
   description: 'description',
   dueDate: 'dueDate',
-  category: 'category',
+  categoryId: 'categoryId',
   isArchived: 'isArchived'
+};
+
+exports.Prisma.CategoryScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  color: 'color'
 };
 
 exports.Prisma.SortOrder = {
@@ -138,7 +144,8 @@ exports.Prisma.QueryMode = {
 
 
 exports.Prisma.ModelName = {
-  Timer: 'Timer'
+  Timer: 'Timer',
+  Category: 'Category'
 };
 
 /**

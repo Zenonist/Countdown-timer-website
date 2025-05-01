@@ -19,6 +19,16 @@ model Timer {
   title       String
   description String
   dueDate     DateTime
-  category    String
+  categoryId  Int
   isArchived  Boolean  @default(false)
+  // Create foreign key relation to Category model
+  category    Category @relation(fields: [categoryId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model Category {
+  id     Int     @id @default(autoincrement())
+  name   String
+  color  String
+  // We require timers Timer[] to make one-to-many relation = one category to many timers
+  timers Timer[]
 }

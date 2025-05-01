@@ -19,9 +19,8 @@ export class CreateTimerDto {
   @IsNotEmpty()
   dueDate: string; // Use string for input, will be converted to Date
 
-  @IsString()
   @IsNotEmpty()
-  category: string;
+  categoryId: number;
 
   @IsOptional()
   @IsBoolean()

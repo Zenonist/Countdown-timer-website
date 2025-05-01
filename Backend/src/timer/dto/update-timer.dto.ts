@@ -15,7 +15,7 @@ export class UpdateTimerDto {
 
   @IsOptional()
   @IsString()
-  category?: string;
+  categoryId?: number;
 
   @IsOptional()
   @IsBoolean()
