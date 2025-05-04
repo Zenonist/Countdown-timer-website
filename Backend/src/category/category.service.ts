@@ -9,12 +9,12 @@ import { Category } from 'generated/prisma';
 export class CategoryService {
   constructor(private readonly prisma: PrismaService) {}
 
-  create(createCategoryDto: CreateCategoryDto): Promise<Category> {
+  async create(createCategoryDto: CreateCategoryDto): Promise<Category> {
     try {
       const name: string = createCategoryDto.name;
       // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment
       const color: string = randomColor();
-      return this.prisma.category.create({
+      return await this.prisma.category.create({
         data: {
           name,
           color,
@@ -26,23 +26,40 @@ export class CategoryService {
     }
   }
 
-  findAll() {
-    // TODO: Implement code to return categories from the database
-    return `This action returns all category`;
+  async findAll() {
+    try {
+      return await this.prisma.category.findMany();
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+      throw new InternalServerErrorException('Failed to fetch categories');
+    }
   }
 
-  findOne(id: number) {
-    // TODO: Implement code to return category by Id from the database
-    return `This action returns a #${id} category`;
+  findOneById(_id: number) {
+    return this.prisma.category.findUniqueOrThrow({
+      where: {
+        id: _id,
+      },
+    });
   }
 
-  update(id: number, updateCategoryDto: UpdateCategoryDto) {
-    // TODO: Implement code to update category to the database
-    return `This action updates a #${id} category`;
+  update(_id: number, updateCategoryDto: UpdateCategoryDto) {
+    return this.prisma.category.update({
+      where: {
+        id: _id,
+      },
+      data: {
+        name: updateCategoryDto.name,
+        color: updateCategoryDto.color,
+      },
+    });
   }
 
-  remove(id: number) {
-    // TODO: Implement code to delete category from the database
-    return `This action removes a #${id} category`;
+  remove(_id: number) {
+    return this.prisma.category.delete({
+      where: {
+        id: _id,
+      },
+    });
   }
 }
