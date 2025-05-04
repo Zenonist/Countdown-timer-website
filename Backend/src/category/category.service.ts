@@ -43,7 +43,7 @@ export class CategoryService {
     });
   }
 
-  update(_id: number, updateCategoryDto: UpdateCategoryDto) {
+  updateById(_id: number, updateCategoryDto: UpdateCategoryDto) {
     return this.prisma.category.update({
       where: {
         id: _id,
@@ -51,6 +51,14 @@ export class CategoryService {
       data: {
         name: updateCategoryDto.name,
         color: updateCategoryDto.color,
+      },
+    });
+  }
+
+  findOneByName(name: string) {
+    return this.prisma.category.findFirst({
+      where: {
+        name: name,
       },
     });
   }

@@ -37,7 +37,7 @@ export class CategoryController {
     @Body() updateCategoryDto: UpdateCategoryDto,
   ) {
     // NOTE: +id converts the string to a number
-    return this.categoryService.update(+id, updateCategoryDto);
+    return this.categoryService.updateById(+id, updateCategoryDto);
   }
 
   @Delete(':id')
