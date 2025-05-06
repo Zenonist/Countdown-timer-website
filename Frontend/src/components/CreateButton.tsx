@@ -31,6 +31,7 @@ export default function CreateButton({ onCreate }: Readonly<CreateButtonProps>) 
     setOpen(false);
     setTitle("");
     setDescription("");
+    setCategory("");
     setDueDate(new Date());
   };
 

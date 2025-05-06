@@ -30,40 +30,60 @@ export class CategoryService {
     }
   }
 
-  findOneById(_id: number) {
-    return this.prisma.category.findUniqueOrThrow({
-      where: {
-        id: _id,
-      },
-    });
+  async findOneById(_id: number) {
+    try {
+      return await this.prisma.category.findUniqueOrThrow({
+        where: {
+          id: _id,
+        },
+      });
+    } catch (error) {
+      console.error('Error fetching category:', error);
+      throw new InternalServerErrorException('Failed to fetch category');
+    }
   }
 
-  updateById(_id: number, updateCategoryDto: UpdateCategoryDto) {
-    return this.prisma.category.update({
-      where: {
-        id: _id,
-      },
-      data: {
-        name: updateCategoryDto.name,
-        color: updateCategoryDto.color,
-      },
-    });
+  async updateById(_id: number, updateCategoryDto: UpdateCategoryDto) {
+    try {
+      return await this.prisma.category.update({
+        where: {
+          id: _id,
+        },
+        data: {
+          name: updateCategoryDto.name,
+          color: updateCategoryDto.color,
+        },
+      });
+    } catch (error) {
+      console.error('Error updating category:', error);
+      throw new InternalServerErrorException('Failed to update category');
+    }
   }
 
-  findOneByName(name: string) {
-    return this.prisma.category.findFirst({
-      where: {
-        name: name,
-      },
-    });
+  async findOneByName(name: string) {
+    try {
+      return await this.prisma.category.findFirst({
+        where: {
+          name: name,
+        },
+      });
+    } catch (error) {
+      console.error('Error fetching category:', error);
+      throw new InternalServerErrorException('Failed to fetch category');
+    }
   }
 
-  remove(_id: number) {
-    return this.prisma.category.delete({
-      where: {
-        id: _id,
-      },
-    });
+  async remove(_id: number) {
+    try {
+      return await this.prisma.category.delete({
+        where: {
+          id: _id,
+        },
+      });
+    } catch (error) {
+      console.error('Error deleting category:', error);
+      throw new InternalServerErrorException('Failed to delete category');
+    }
   }
 
   createCategoryData(categoryName: string) {
@@ -73,5 +93,21 @@ export class CategoryService {
       name: categoryName,
       color: colorCode,
     };
+  }
+
+  async findMappingCategory(_id: number) {
+    try {
+      return await this.prisma.category.findFirst({
+        where: {
+          id: _id,
+        },
+        select: {
+          timers: true,
+        },
+      });
+    } catch (error) {
+      console.error('Error fetching category:', error);
+      throw new InternalServerErrorException('Failed to fetch category');
+    }
   }
 }
