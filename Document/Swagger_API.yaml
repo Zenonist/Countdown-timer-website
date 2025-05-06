@@ -99,12 +99,11 @@ paths:
                 $ref: '#/components/schemas/Timer'
               examples:
                 Timer:
-                  $ref: '$components/examples/TimerResultExample'
-    
+                  $ref: '#/components/examples/TimerResultExample' 
     delete:
       tags:
         - timer
-      summary: Detele specific countdown timer
+      summary: Delete specific countdown timer
       description: Delete countdown timer by using ID
       parameters:
         - name: id
@@ -157,11 +156,19 @@ components:
         dueDate:
           type: string
           format: date-time
+        categoryId:
+          type: number
         category:
-          type: string
+          type: object
+          properties:
+            id:
+              type: number
+            name:
+              type: string
+            color:
+              type: string
         isArchived:
           type: boolean
-
     AllTimer:
       type: array
       items:
@@ -177,7 +184,7 @@ components:
         dueDate:
           type: string
           format: date-time
-        category:
+        categoryName:
           type: string
         isArchived:
           type: boolean
@@ -185,7 +192,7 @@ components:
         - title
         - description
         - dueDate
-        - category
+        - categoryName
         
     EditTimer:
       type: object
@@ -197,11 +204,10 @@ components:
         dueDate:
           type: string
           format: date-time
-        category:
+        categoryName:
           type: string
         isArchived:
           type: boolean
-
   examples:
     TimerResultExample:
       summary: A sample timer
@@ -210,5 +216,8 @@ components:
         title: First countdown
         description: my new countdown
         dueDate: 2025-12-12T10:00:00.000Z
-        category: Personal
+        category:
+          id: 1
+          name: Personal
+          color: #FF6347
         isArchived: false

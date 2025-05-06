@@ -19,11 +19,14 @@ export class CreateTimerDto {
   @IsNotEmpty()
   dueDate: string; // Use string for input, will be converted to Date
 
-  @IsString()
   @IsNotEmpty()
-  category: string;
+  @IsString()
+  categoryName: string;
 
   @IsOptional()
   @IsBoolean()
   isArchived?: boolean;
 }
+
+// Log
+// ! Remove categoryId from DTO because the client requires sending API to get categoryId from the server. So Using categoryName instead
