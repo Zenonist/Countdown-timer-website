@@ -8,6 +8,8 @@ servers:
 tags:
   - name: timer
     description: Operations about timer
+  - name: category
+    description: Operations about category
 paths:
   /timer:
     get:
@@ -56,6 +58,7 @@ paths:
       description: Retrieve a specific countdown timer by its ID
       parameters:
         - name: id
+        # This one mentions that id is in path
           in: path
           required: true
           description: ID of countdown timer
@@ -140,8 +143,95 @@ paths:
                 error: Not Found
                 statusCode: 404
                 
-                
+  /category:
+    get:
+      tags:
+        - category
+      summary: Get all categories
+      description: Get all categories in the database
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AllCategory'
+    
+    post:
+      tags:
+        - category
+      summary: Create new category
+      description: Create new category
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCategory'
+      responses:
+        '201':
+          description: Created
 
+  /category/{id}:
+    get:
+      tags:
+        - category
+      summary: Get category by specific id
+      description: Retrieve a specific category by its ID
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+                
+    patch:
+      tags:
+        - category
+      summary: Edit category
+      description: Edit specific category
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of category
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EditCategory'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+    
+    delete:
+      tags:
+        - category
+      summary: Delete specific category
+      description: Delete category by using ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of category
+          schema:
+            type: number
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+                
 components:
   schemas:
     Timer:
@@ -169,6 +259,7 @@ components:
               type: string
         isArchived:
           type: boolean
+    
     AllTimer:
       type: array
       items:
@@ -208,6 +299,36 @@ components:
           type: string
         isArchived:
           type: boolean
+    
+    Category:
+      type: object
+      properties:
+        id:
+          type: number
+        name:
+          type: string
+        color:
+          type: string
+
+    AllCategory:
+      type: array
+      items:
+        $ref: '#/components/schemas/Category'
+
+    CreateCategory:
+      type: object
+      properties:
+        name:
+          type: string
+
+    EditCategory:
+      type: object
+      properties:
+        name:
+          type: string
+        color:
+          type: string
+          
   examples:
     TimerResultExample:
       summary: A sample timer
