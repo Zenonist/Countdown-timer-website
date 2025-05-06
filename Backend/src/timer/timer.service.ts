@@ -148,12 +148,21 @@ export class TimerService {
   }
   async remove(id: number): Promise<Timer> {
     try {
-      return await this.prisma.timer.delete({
+      const response = await this.prisma.timer.delete({
         where: { id },
         include: {
           category: true,
         },
       });
+
+      // NOTE: We will remove the category if there is no timer that uses that category
+      const categoryId = response.category.id;
+      const categoryList = await this.category.findMappingCategory(categoryId);
+      // category.timers.length === 0 uses to check if the category is empty
+      if (categoryList?.timers.length === 0) {
+        await this.category.remove(categoryId);
+      }
+      return response;
     } catch (error) {
       // Check if it's a Prisma record not found error
       // P2025: "An operation failed because it depends on one or more records that were required but not found. {cause}"
