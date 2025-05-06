@@ -59,7 +59,7 @@ export default function CreateButton({ onCreate }: Readonly<CreateButtonProps>) 
       .post(URL, {
         title: title,
         description: description,
-        category: category,
+        categoryName: category,
         dueDate: dueDate,
       }).then((response) => {
         console.log("Response:", response.data);

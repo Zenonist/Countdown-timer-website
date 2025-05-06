@@ -18,6 +18,7 @@ function App() {
     const URL = import.meta.env.VITE_BACKEND_URL + "/" + encodeURIComponent("timer");
     axios.get(URL)
       .then((response) => {
+        console.log(response.data);
         setCountdowns(response.data);
       })
       .catch((error) => {
