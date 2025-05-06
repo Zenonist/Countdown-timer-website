@@ -22,6 +22,7 @@ import { useEffect, useState } from "react";
 import TimeFormat from "../entity/TimeFormat";
 import { DateTimePicker } from "@mui/x-date-pickers";
 import axios from "axios";
+import CategoryFormat from "../entity/CategoryFormat";
 
 function Countdown({
   _id,
@@ -34,13 +35,17 @@ function Countdown({
   _id: number;
   _title: string;
   _description: string;
-  _category: string;
+  _category: CategoryFormat;
   _dueDate: Date;
   onDelete?: () => void;
 }) {
   const [title, setTitle] = useState("Test");
   const [description, setDescription] = useState("Test description");
-  const [category, setCategory] = useState("Test category");
+  const [category, setCategory] = useState<CategoryFormat>({
+    id: 0,
+    name: "",
+    color: "",
+  });
   const [dueDate, setDueDate] = useState<Date | null>(null);
   const [timeLeft, setTimeLeft] = useState<TimeFormat>({
     days: 0,
@@ -53,8 +58,9 @@ function Countdown({
   const [openEdit, setOpenEdit] = useState(false);
   const [editTitle, setEditTitle] = useState(_title);
   const [editDescription, setEditDescription] = useState(_description);
-  const [editCategory, setEditCategory] = useState(_category);
-  const [editDueDate, setEditDueDate] = useState<Date | null>(_dueDate);
+  // * editCategory is a string because we want to edit the category name (color will be handled by the backend)
+  const [editCategory, setEditCategory] = useState(_category.name);
+  const [editDueDate, setEditDueDate] = useState<Date>(_dueDate);
 
   const [openDelete, setOpenDelete] = useState(false);
 
@@ -124,8 +130,7 @@ function Countdown({
   };
 
   const handleDateChange = (newDate: Date | null) => {
-    setEditDueDate(newDate);
-    console.log(newDate?.toISOString());
+    setEditDueDate(newDate as Date);
   };
 
   const handleEditSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -133,20 +138,24 @@ function Countdown({
     event.preventDefault();
 
     axios
-      .post(
-        import.meta.env.VITE_BACKEND_URL + "/" + encodeURIComponent("timer"),
+      .patch(
+        import.meta.env.VITE_BACKEND_URL + "/" + encodeURIComponent("timer") + "/" + encodeURIComponent(_id),
         {
           title: editTitle,
           description: editDescription,
-          category: editCategory,
-          dueDate: editDueDate,
+          categoryName: editCategory,
+          dueDate: editDueDate?.toISOString(),
         }
       )
-      .then(() => {
+      .then((response) => {
         // Update the countdown with the new values
         setTitle(editTitle);
         setDescription(editDescription);
-        setCategory(editCategory);
+        setCategory({
+          id: response.data.category.id,
+          name: editCategory,
+          color: response.data.category.color,
+        });
         setDueDate(editDueDate);
         if (editDueDate) {
           setTimeLeft(calculateTimeLeft(editDueDate));
@@ -188,6 +197,7 @@ function Countdown({
           backgroundColor: "rgba(255, 255, 255, 0.9)",
           width: "100%",
           maxWidth: "36rem",
+          boxShadow: `0 0 25px 10px ${category.color}`,
         }}
       >
         <CardHeader title={title} />
@@ -249,7 +259,10 @@ function Countdown({
           </div>
           <div className="justify-right">
             <Typography>Category:</Typography>
-            <Chip label={category} color="primary" />
+            <Chip label={category.name} sx={{
+              backgroundColor: category.color,
+              color: "white",
+            }} />
           </div>
         </CardContent>
         <CardActions>
@@ -296,7 +309,7 @@ function Countdown({
                 {/* Date picker */}
                 <DateTimePicker
                   label="Due date"
-                  value={editDueDate}
+                  value={new Date(editDueDate)}
                   /* slotProps allows passing props to internal components (slots) of the DateTimePicker.
                    Here we're setting the margin="dense" on the internal TextField component to
                    maintain consistent spacing with other form fields. */
