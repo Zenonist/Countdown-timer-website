@@ -18,6 +18,10 @@ export class UpdateTimerDto {
   categoryId?: number;
 
   @IsOptional()
+  @IsString()
+  categoryName?: string;
+
+  @IsOptional()
   @IsBoolean()
   isArchived?: boolean;
 }

@@ -22,6 +22,10 @@ export class CreateTimerDto {
   @IsNotEmpty()
   categoryId: number;
 
+  @IsNotEmpty()
+  @IsString()
+  categoryName?: string;
+
   @IsOptional()
   @IsBoolean()
   isArchived?: boolean;

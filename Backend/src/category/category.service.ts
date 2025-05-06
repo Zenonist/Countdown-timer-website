@@ -12,13 +12,8 @@ export class CategoryService {
   async create(createCategoryDto: CreateCategoryDto): Promise<Category> {
     try {
       const name: string = createCategoryDto.name;
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment
-      const color: string = randomColor();
       return await this.prisma.category.create({
-        data: {
-          name,
-          color,
-        },
+        data: this.createCategoryData(name),
       });
     } catch (error) {
       console.error('Error creating category:', error);
@@ -69,5 +64,14 @@ export class CategoryService {
         id: _id,
       },
     });
+  }
+
+  createCategoryData(categoryName: string) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment
+    const colorCode: string = randomColor();
+    return {
+      name: categoryName,
+      color: colorCode,
+    };
   }
 }
