@@ -257,8 +257,9 @@ function Countdown({
           <div className="text-gray-900">
             <Typography variant="body1">Description: {description}</Typography>
           </div>
-          <div className="justify-right">
-            <Typography>Category:</Typography>
+          {/* flex items-center justify-center is used to center the category name and the chip in the same line*/}
+          <div className="flex items-center justify-center">
+            <Typography>Category: </Typography>
             <Chip label={category.name} sx={{
               backgroundColor: category.color,
               color: "white",

@@ -5,10 +5,10 @@ import axios from "axios";
 import { mock_data } from "./mock/mockData";
 import { useEffect, useState } from "react";
 import { CountdownFormat } from "./entity/CountdownFormat";
-import CreateButton from "./components/CreateButton";
 
 function App() {
   const [countdowns, setCountdowns] = useState<CountdownFormat[]>([]);
+  const [selectedCountdown, setSelectedCountdown] = useState<string | null>(null);
 
   useEffect(() => {
     getCountdowns();
@@ -27,14 +27,22 @@ function App() {
       })
   }
 
+  const selectedCountdownData = countdowns.find(
+    (countdown) => countdown.title === selectedCountdown
+  );
+
   return (
     <div>
-      <Navbar />
+      <Navbar createTimer={() => getCountdowns()} timers={countdowns} onSelectTimer={
+        (timer: string | null) => {
+          setSelectedCountdown(timer);
+        }
+      }/>
       <div className="text-transparent text-4xl bg-gradient-to-b from-blue-500 to-purple-700 bg-clip-text">
         Countdown timer website
       </div>
       <div>
-        {countdowns.map((countdown) => (
+        {!selectedCountdown ? countdowns.map((countdown) => (
           <Countdown
             key={countdown.id}
             _id={countdown.id}
@@ -44,9 +52,16 @@ function App() {
             _dueDate={countdown.dueDate}
             onDelete={() => getCountdowns()}
           />
-        ))}
+        )) : ( selectedCountdownData &&
+          <Countdown
+            _id={selectedCountdownData.id}
+            _title={selectedCountdownData.title}
+            _description={selectedCountdownData.description}
+            _category={selectedCountdownData.category}
+            _dueDate={selectedCountdownData.dueDate}
+          />
+        )}
       </div>
-      <CreateButton onCreate={() => getCountdowns()}/>
     </div>
   );
 }
