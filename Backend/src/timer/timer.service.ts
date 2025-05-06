@@ -17,18 +17,23 @@ export class TimerService {
   ) {}
 
   async create(createTimerDto: CreateTimerDto): Promise<Timer> {
-    const { dueDate, categoryId, categoryName, ...rest } = createTimerDto;
+    const { dueDate, categoryName, ...rest } = createTimerDto;
+    let categoryId: number = 0;
 
-    if (!categoryId || !categoryName) {
+    if (!categoryName) {
       throw new BadRequestException('Either Category ID and Name is required');
     }
 
     try {
       const existingCategory = await this.category.findOneByName(categoryName);
+      if (existingCategory) {
+        categoryId = existingCategory.id;
+      }
 
       if (!existingCategory) {
-        const newCategory = this.category.createCategoryData(categoryName);
-        await this.category.create(newCategory);
+        const newCategoryData = this.category.createCategoryData(categoryName);
+        const newCategory = await this.category.create(newCategoryData);
+        categoryId = newCategory.id;
       }
 
       return this.prisma.timer.create({
@@ -86,22 +91,11 @@ export class TimerService {
   }
 
   async update(id: number, updateTimerDto: UpdateTimerDto): Promise<Timer> {
-    const { dueDate, categoryId, categoryName, ...rest } = updateTimerDto;
+    const { dueDate, categoryName, ...rest } = updateTimerDto;
     // Prisma generates the `TimerUpdateInput` type based on schema.
     // Fields that are not required in the schema or explicitly marked optional
     // become optional properties in this type.
     const dataToUpdate: Prisma.TimerUpdateInput = { ...rest };
-
-    console.log(categoryId, categoryName);
-
-    if (categoryId) {
-      const existingCategory = await this.category.findOneById(categoryId);
-      if (!existingCategory) {
-        throw new NotFoundException(
-          `Category with ID "${categoryId}" not found`,
-        );
-      }
-    }
 
     if (categoryName) {
       const existingCategory = await this.category.findOneByName(categoryName);
