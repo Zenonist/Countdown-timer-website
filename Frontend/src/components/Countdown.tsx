@@ -130,7 +130,7 @@ function Countdown({
   };
 
   const handleDateChange = (newDate: Date | null) => {
-    setEditDueDate(newDate);
+    setEditDueDate(newDate as Date);
   };
 
   const handleEditSubmit = (event: React.FormEvent<HTMLFormElement>) => {
