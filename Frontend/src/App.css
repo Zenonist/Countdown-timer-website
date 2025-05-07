@@ -6,3 +6,8 @@
   padding: 0;
   text-align: center;
 }
+
+/* When we want to change the color of the entire page need to put in body instead of #root */
+body {
+  background-color: #3b4048;
+}
