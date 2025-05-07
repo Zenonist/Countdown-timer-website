@@ -99,7 +99,6 @@ export class TimerService {
 
     if (categoryName) {
       const existingCategory = await this.category.findOneByName(categoryName);
-      console.log(existingCategory);
       if (!existingCategory) {
         const categoryData = this.category.createCategoryData(categoryName);
         const newCategory = await this.category.create(categoryData);
@@ -122,8 +121,6 @@ export class TimerService {
     if (dueDate) {
       dataToUpdate.dueDate = new Date(dueDate);
     }
-
-    console.log(dataToUpdate);
 
     try {
       return await this.prisma.timer.update({

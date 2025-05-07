@@ -68,28 +68,38 @@ function App() {
       <div>
         {/* It requires () because it is function */}
         {!selectedCountdownData()
-          ? countdowns.map((countdown) => (
-              <Countdown
-                key={countdown.id}
-                _id={countdown.id}
-                _title={countdown.title}
-                _description={countdown.description}
-                _category={countdown.category}
-                _dueDate={countdown.dueDate}
-                onDelete={() => getCountdowns()}
-              />
-            ))
-          : selectedCountdownData()?.map((countdown: CountdownFormat) => (
-              <Countdown
-                key={countdown.id}
-                _id={countdown.id}
-                _title={countdown.title}
-                _description={countdown.description}
-                _category={countdown.category}
-                _dueDate={countdown.dueDate}
-                onDelete={() => getCountdowns()}
-              />
-            ))}
+          ? countdowns
+              // Show unarchived countdowns first
+              // NOTE: Sort works by comparing the boolean values if it is same then return 0 (No change) if a is true and b is false then return 1 (a comes first) if a is false and b is true then return -1 (b comes first)
+              .sort((a, b) => (a.isArchived === b.isArchived ? 0 : a.isArchived ? 1 : -1))
+              .map((countdown) => (
+                <Countdown
+                  key={countdown.id}
+                  _id={countdown.id}
+                  _title={countdown.title}
+                  _description={countdown.description}
+                  _category={countdown.category}
+                  _dueDate={countdown.dueDate}
+                  _isArchived={countdown.isArchived}
+                  onDelete={() => getCountdowns()}
+                  onArchive={() => getCountdowns()}
+                />
+              ))
+          : selectedCountdownData()
+              ?.sort((a, b) => (a.isArchived === b.isArchived ? 0 : a.isArchived ? 1 : -1))
+              .map((countdown: CountdownFormat) => (
+                <Countdown
+                  key={countdown.id}
+                  _id={countdown.id}
+                  _title={countdown.title}
+                  _description={countdown.description}
+                  _category={countdown.category}
+                  _dueDate={countdown.dueDate}
+                  _isArchived={countdown.isArchived}
+                  onDelete={() => getCountdowns()}
+                  onArchive={() => getCountdowns()}
+                />
+              ))}
       </div>
     </div>
   );
