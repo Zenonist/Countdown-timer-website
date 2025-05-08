@@ -9,25 +9,35 @@ import { Pagination } from "@mui/material";
 
 function App() {
   // * Variable
-  const cardsPerPage = 3
+  const cardsPerPage = 3;
 
   // * Use state
   const [countdowns, setCountdowns] = useState<CountdownFormat[]>([]);
   const [selectedTitle, setSelectedTitle] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [page, setPage] = useState(1);
-  
-  const currentCards = (countdowns: CountdownFormat[]) => {
-    const result = countdowns.slice((page - 1) * cardsPerPage, page * cardsPerPage);
-    console.log(result);
+
+  const currentCards = (countdowns: CountdownFormat[] | null | undefined) => {
+    if (!countdowns) return [];
+    const result = countdowns.slice(
+      (page - 1) * cardsPerPage,
+      page * cardsPerPage
+    );
     return result;
-  }
+  };
 
   useEffect(() => {
     getCountdowns();
   }, []);
 
   const getCountdowns = () => {
+    // ! Always check that the environment variable is set before fetching the data from the backend because sometime error does not show up that env is not set
+    // NOTE: Always implement code to check that the environment variable is set before fetching the data from the backend
+    if (import.meta.env.VITE_BACKEND_URL === "" || import.meta.env.VITE_BACKEND_URL === undefined) {
+      setCountdowns(mock_data);
+      console.log("Environment variable is not set");
+      return;
+    }
     const URL =
       import.meta.env.VITE_BACKEND_URL + "/" + encodeURIComponent("timer");
     axios
@@ -38,7 +48,6 @@ function App() {
       })
       .catch((error) => {
         console.error("Error fetching data:", error);
-        setCountdowns(mock_data);
       });
   };
 
@@ -68,6 +77,31 @@ function App() {
   const dataSourceForPageCount = selectedCountdownData() ?? countdowns;
   const totalPages = Math.ceil(dataSourceForPageCount.length / cardsPerPage);
 
+  // Countdown component structure
+  const renderCountdown = (countdown: CountdownFormat) => (
+    <Countdown
+      key={countdown.id}
+      _id={countdown.id}
+      _title={countdown.title}
+      _description={countdown.description}
+      _category={countdown.category}
+      _dueDate={countdown.dueDate}
+      _isArchived={countdown.isArchived}
+      onDelete={() => getCountdowns()}
+      onArchive={() => getCountdowns()}
+    />
+  );
+
+  // Render countdown list component
+  const renderCountdownList = (data: CountdownFormat[]) => {
+    if (data.length === 0) {
+      return <div className="text-center text-white mt-4">No countdowns available</div>;
+    }
+    const result = currentCards(data)
+    // NOTE: renderCountdown does not need to have () because it will be called automatically by the map function if it has () then it will be called immediately
+    return result.sort((a, b) => (a.isArchived === b.isArchived ? 0 : a.isArchived ? 1 : -1)).map(renderCountdown);
+  };
+
   return (
     <div>
       <Navbar
@@ -85,45 +119,11 @@ function App() {
       </div>
       <div>
         {/* Cards */}
-
-        {/* It requires () because it is function */}
-        {!selectedCountdownData()
-          ? currentCards(countdowns)
-              // Show unarchived countdowns first
-              // NOTE: Sort works by comparing the boolean values if it is same then return 0 (No change) if a is true and b is false then return 1 (a comes first) if a is false and b is true then return -1 (b comes first)
-              .sort((a, b) => (a.isArchived === b.isArchived ? 0 : a.isArchived ? 1 : -1))
-              .map((countdown) => (
-                <Countdown
-                  key={countdown.id}
-                  _id={countdown.id}
-                  _title={countdown.title}
-                  _description={countdown.description}
-                  _category={countdown.category}
-                  _dueDate={countdown.dueDate}
-                  _isArchived={countdown.isArchived}
-                  onDelete={() => getCountdowns()}
-                  onArchive={() => getCountdowns()}
-                />
-              ))
-          : currentCards(selectedCountdownData() ?? [])
-              ?.sort((a, b) => (a.isArchived === b.isArchived ? 0 : a.isArchived ? 1 : -1))
-              .map((countdown: CountdownFormat) => (
-                <Countdown
-                  key={countdown.id}
-                  _id={countdown.id}
-                  _title={countdown.title}
-                  _description={countdown.description}
-                  _category={countdown.category}
-                  _dueDate={countdown.dueDate}
-                  _isArchived={countdown.isArchived}
-                  onDelete={() => getCountdowns()}
-                  onArchive={() => getCountdowns()}
-                />
-              ))}
+        {renderCountdownList(selectedCountdownData() ?? countdowns)}
       </div>
       <div>
         {/* Pagination */}
-        <Pagination 
+        <Pagination
           count={totalPages}
           onChange={(_event: React.ChangeEvent<unknown>, page: number) => {
             setPage(page);
@@ -143,7 +143,6 @@ function App() {
           showFirstButton
           showLastButton
         />
-
       </div>
     </div>
   );

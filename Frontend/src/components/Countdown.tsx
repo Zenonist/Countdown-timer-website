@@ -103,7 +103,9 @@ function Countdown({
   // Function to calculate time left
   const calculateTimeLeft = (dueDate: Date): TimeFormat => {
     const now = new Date();
-    const difference = dueDate.getTime() - now.getTime();
+    // If dueDate is not a Date object, convert it to a Date object (this is to handle the case where the dueDate is a string)
+    const dueDateFormatted = dueDate instanceof Date ? dueDate : new Date(dueDate);
+    const difference = dueDateFormatted.getTime() - now.getTime();
 
     const timeLeft: TimeFormat = {
       days: Math.floor(difference / (1000 * 60 * 60 * 24)),
@@ -145,6 +147,13 @@ function Countdown({
     // Prevent default form submission -> prevent page reload which is the default behavior of a form
     event.preventDefault();
 
+    // If editDueDate is a Date object, convert it to a string
+    // Otherwise, convert it to a string using new Date(editDueDate) 
+    // NOTE: if there is no change in dueDate when user edits the countdown (The system returns string instead of Date object)
+    const dateToSend = editDueDate instanceof Date 
+    ? editDueDate.toISOString() 
+    : new Date(editDueDate).toISOString();
+
     axios
       .patch(
         import.meta.env.VITE_BACKEND_URL +
@@ -156,7 +165,7 @@ function Countdown({
           title: editTitle,
           description: editDescription,
           categoryName: editCategory,
-          dueDate: editDueDate?.toISOString(),
+          dueDate: dateToSend,
         }
       )
       .then((response) => {
@@ -377,7 +386,7 @@ function Countdown({
                 {/* Date picker */}
                 <DateTimePicker
                   label="Due date"
-                  value={new Date(editDueDate)}
+                  value={editDueDate instanceof Date ? editDueDate : new Date(editDueDate)}
                   /* slotProps allows passing props to internal components (slots) of the DateTimePicker.
                    Here we're setting the margin="dense" on the internal TextField component to
                    maintain consistent spacing with other form fields. */
