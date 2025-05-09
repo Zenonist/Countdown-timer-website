@@ -39,8 +39,13 @@ function Navbar({
           autoHighlight
           options={timerName}
           sx={{
-            width: "200px",
+            width: "170px",
             backgroundColor: "rgba(255, 255, 255, 0.5)",
+            // Change the color of the label when the input is focused
+            '& .MuiInputLabel-root.Mui-focused': {
+              color: 'white',
+              fontSize: "1.25em",
+            },
           }}
           renderInput={(params) => (
             <TextField {...params} label="Title search" />
@@ -60,8 +65,13 @@ function Navbar({
           autoHighlight
           options={categories}
           sx={{
-            width: "200px",
+            width: "170px",
             backgroundColor: "rgba(255, 255, 255, 0.5)",
+            // Change the color of the label when the input is focused
+            '& .MuiInputLabel-root.Mui-focused': {
+              color: 'white',
+              fontSize: "1.25em",
+            },
           }}
           renderInput={(params) => (
             <TextField {...params} label="Category search" />

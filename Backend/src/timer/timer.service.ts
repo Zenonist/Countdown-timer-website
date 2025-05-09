@@ -91,6 +91,10 @@ export class TimerService {
   }
 
   async update(id: number, updateTimerDto: UpdateTimerDto): Promise<Timer> {
+    // Get information about the current category of the timer for removing the category if it has no timers
+    const currentTimer = await this.findOne(id);
+    const currentCategoryId = currentTimer?.categoryId ?? 0;
+
     const { dueDate, categoryName, ...rest } = updateTimerDto;
     // Prisma generates the `TimerUpdateInput` type based on schema.
     // Fields that are not required in the schema or explicitly marked optional
@@ -99,7 +103,6 @@ export class TimerService {
 
     if (categoryName) {
       const existingCategory = await this.category.findOneByName(categoryName);
-      console.log(existingCategory);
       if (!existingCategory) {
         const categoryData = this.category.createCategoryData(categoryName);
         const newCategory = await this.category.create(categoryData);
@@ -123,16 +126,25 @@ export class TimerService {
       dataToUpdate.dueDate = new Date(dueDate);
     }
 
-    console.log(dataToUpdate);
-
     try {
-      return await this.prisma.timer.update({
+      const response = await this.prisma.timer.update({
         where: { id },
         data: dataToUpdate,
         include: {
           category: true,
         },
       });
+      // If the category is updated, check if the category has no timers
+      if (categoryName) {
+        const currentCategoryMapping =
+          await this.category.findMappingCategory(currentCategoryId);
+        // If the current category has no timers, remove the category
+        if (currentCategoryMapping?.timers.length === 0) {
+          await this.category.remove(currentCategoryId);
+          console.log(`Category with ID "${currentCategoryId}" is removed`);
+        }
+      }
+      return response;
     } catch (error) {
       // Check if it's a Prisma record not found error
       // P2025: "An operation failed because it depends on one or more records that were required but not found. {cause}"
@@ -146,6 +158,7 @@ export class TimerService {
       throw error;
     }
   }
+
   async remove(id: number): Promise<Timer> {
     try {
       const response = await this.prisma.timer.delete({

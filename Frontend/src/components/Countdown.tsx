@@ -6,7 +6,6 @@ import {
   CardContent,
   CardHeader,
   Chip,
-  // Chip,
   Dialog,
   DialogActions,
   DialogContent,
@@ -14,10 +13,13 @@ import {
   DialogTitle,
   IconButton,
   TextField,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import ArchiveIcon from "@mui/icons-material/Archive";
+import UnarchiveOutlinedIcon from '@mui/icons-material/UnarchiveOutlined';
 import { useEffect, useState } from "react";
 import TimeFormat from "../entity/TimeFormat";
 import { DateTimePicker } from "@mui/x-date-pickers";
@@ -30,14 +32,18 @@ function Countdown({
   _description,
   _category,
   _dueDate,
-  onDelete
+  _isArchived,
+  onDelete,
+  onArchive,
 }: {
   _id: number;
   _title: string;
   _description: string;
   _category: CategoryFormat;
   _dueDate: Date;
+  _isArchived: boolean;
   onDelete?: () => void;
+  onArchive?: () => void;
 }) {
   const [title, setTitle] = useState("Test");
   const [description, setDescription] = useState("Test description");
@@ -47,6 +53,7 @@ function Countdown({
     color: "",
   });
   const [dueDate, setDueDate] = useState<Date | null>(null);
+  const [isArchived, setIsArchived] = useState(false);
   const [timeLeft, setTimeLeft] = useState<TimeFormat>({
     days: 0,
     hours: 0,
@@ -71,7 +78,8 @@ function Countdown({
     setCategory(_category);
     setDueDate(_dueDate);
     setTimeLeft(calculateTimeLeft(new Date(_dueDate)));
-  }, [_title, _description, _category, _dueDate]);
+    setIsArchived(_isArchived);
+  }, [_title, _description, _category, _dueDate, _isArchived]);
 
   // Update time left every second
   useEffect(() => {
@@ -95,7 +103,9 @@ function Countdown({
   // Function to calculate time left
   const calculateTimeLeft = (dueDate: Date): TimeFormat => {
     const now = new Date();
-    const difference = dueDate.getTime() - now.getTime();
+    // If dueDate is not a Date object, convert it to a Date object (this is to handle the case where the dueDate is a string)
+    const dueDateFormatted = dueDate instanceof Date ? dueDate : new Date(dueDate);
+    const difference = dueDateFormatted.getTime() - now.getTime();
 
     const timeLeft: TimeFormat = {
       days: Math.floor(difference / (1000 * 60 * 60 * 24)),
@@ -137,14 +147,25 @@ function Countdown({
     // Prevent default form submission -> prevent page reload which is the default behavior of a form
     event.preventDefault();
 
+    // If editDueDate is a Date object, convert it to a string
+    // Otherwise, convert it to a string using new Date(editDueDate) 
+    // NOTE: if there is no change in dueDate when user edits the countdown (The system returns string instead of Date object)
+    const dateToSend = editDueDate instanceof Date 
+    ? editDueDate.toISOString() 
+    : new Date(editDueDate).toISOString();
+
     axios
       .patch(
-        import.meta.env.VITE_BACKEND_URL + "/" + encodeURIComponent("timer") + "/" + encodeURIComponent(_id),
+        import.meta.env.VITE_BACKEND_URL +
+          "/" +
+          encodeURIComponent("timer") +
+          "/" +
+          encodeURIComponent(_id),
         {
           title: editTitle,
           description: editDescription,
           categoryName: editCategory,
-          dueDate: editDueDate?.toISOString(),
+          dueDate: dateToSend,
         }
       )
       .then((response) => {
@@ -174,7 +195,11 @@ function Countdown({
   const deleteCountdown = () => {
     axios
       .delete(
-        import.meta.env.VITE_BACKEND_URL + "/" + encodeURIComponent("timer") + "/" + encodeURIComponent(_id),
+        import.meta.env.VITE_BACKEND_URL +
+          "/" +
+          encodeURIComponent("timer") +
+          "/" +
+          encodeURIComponent(_id),
         {}
       )
       .then(() => {
@@ -187,6 +212,52 @@ function Countdown({
       .catch((error: unknown) => {
         console.error("Error deleting countdown:", error);
         setOpenDelete(false);
+      });
+  };
+
+  const archiveCountdown = () => {
+    axios
+      .patch(
+        import.meta.env.VITE_BACKEND_URL +
+          "/" +
+          encodeURIComponent("timer") +
+          "/" +
+          encodeURIComponent(_id),
+        {
+          isArchived: true,
+        }
+      )
+      .then(() => {
+        setIsArchived(true);
+        if (onArchive) {
+          onArchive();
+        }
+      })
+      .catch((error: unknown) => {
+        console.error("Error archiving countdown:", error);
+      });
+  };
+
+  const unarchiveCountdown = () => {
+    axios
+      .patch(
+        import.meta.env.VITE_BACKEND_URL +
+          "/" +
+          encodeURIComponent("timer") +
+          "/" +
+          encodeURIComponent(_id),
+        {
+          isArchived: false,
+        }
+      )
+      .then(() => {
+        setIsArchived(false);
+        if (onArchive) {
+          onArchive();
+        }
+      })
+      .catch((error: unknown) => {
+        console.error("Error unarchiving countdown:", error);
       });
   };
 
@@ -260,16 +331,21 @@ function Countdown({
           {/* flex items-center justify-center is used to center the category name and the chip in the same line*/}
           <div className="flex items-center justify-center">
             <Typography>Category: </Typography>
-            <Chip label={category.name} sx={{
-              backgroundColor: category.color,
-              color: "white",
-            }} />
+            <Chip
+              label={category.name}
+              sx={{
+                backgroundColor: category.color,
+                color: "white",
+              }}
+            />
           </div>
         </CardContent>
         <CardActions>
-          <IconButton onClick={handleOpenEdit}>
-            <EditIcon />
-          </IconButton>
+          <Tooltip title="Edit countdown timer">
+            <IconButton onClick={handleOpenEdit}>
+              <EditIcon />
+            </IconButton>
+          </Tooltip>
           <Dialog open={openEdit} onClose={handleCloseEdit}>
             <form id="edit-form" onSubmit={handleEditSubmit}>
               <DialogTitle>Edit countdown timer</DialogTitle>
@@ -310,7 +386,7 @@ function Countdown({
                 {/* Date picker */}
                 <DateTimePicker
                   label="Due date"
-                  value={new Date(editDueDate)}
+                  value={editDueDate instanceof Date ? editDueDate : new Date(editDueDate)}
                   /* slotProps allows passing props to internal components (slots) of the DateTimePicker.
                    Here we're setting the margin="dense" on the internal TextField component to
                    maintain consistent spacing with other form fields. */
@@ -324,10 +400,11 @@ function Countdown({
               </DialogActions>
             </form>
           </Dialog>
-
-          <IconButton onClick={() => setOpenDelete(true)}>
-            <DeleteIcon />
-          </IconButton>
+          <Tooltip title="Delete countdown timer">
+            <IconButton onClick={() => setOpenDelete(true)}>
+              <DeleteIcon />
+            </IconButton>
+          </Tooltip>
           <Dialog open={openDelete} onClose={() => setOpenDelete(false)}>
             <DialogTitle>Delete countdown timer</DialogTitle>
             <DialogContent>
@@ -352,6 +429,21 @@ function Countdown({
               <Button onClick={() => setOpenDelete(false)}>Cancel</Button>
             </DialogActions>
           </Dialog>
+          {/* && is used only if only one of the conditions is true and the other is false will not render anything */}
+          {/* ? is used to check if the condition is true or false (both conditions are true ) */}
+          {!isArchived ? (
+            <Tooltip title="Archive countdown timer">
+              <IconButton onClick={archiveCountdown}>
+                <ArchiveIcon />
+              </IconButton>
+            </Tooltip>
+          ) : (
+            <Tooltip title="Unarchive countdown timer">
+              <IconButton onClick={unarchiveCountdown}>
+                <UnarchiveOutlinedIcon />
+              </IconButton>
+            </Tooltip>
+          )}
         </CardActions>
       </Card>
     </div>
