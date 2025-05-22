@@ -7,7 +7,11 @@ RUN npm install -g pnpm
 
 COPY package.json pnpm-lock.yaml* ./
 
+COPY prisma ./prisma
+
 RUN pnpm install
+
+RUN npx prisma generate
 
 COPY . .
 
@@ -24,4 +28,4 @@ COPY --from=build /usr/src/app .
 
 EXPOSE 3000
 
-CMD ["pnpm", "run", "start"]
+CMD ["sh", "-c", "pnpm run db:deploy && pnpm run start"]

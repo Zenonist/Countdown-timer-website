@@ -10,7 +10,8 @@ services:
     volumes:
       - db_data:/var/lib/postgresql/data
     restart: always
-    
+    networks:
+      - prisma-network
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U user -d mydb"]
       interval: 10s
@@ -27,7 +28,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
-
+    networks:
+      - prisma-network
   frontend:
     build: ./Frontend
     ports:
@@ -41,3 +43,7 @@ services:
 
 volumes:
   db_data:
+
+networks:
+  prisma-network:
+    name: prisma-network
