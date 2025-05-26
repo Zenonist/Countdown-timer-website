@@ -33,7 +33,10 @@ function App() {
   const getCountdowns = () => {
     // ! Always check that the environment variable is set before fetching the data from the backend because sometime error does not show up that env is not set
     // NOTE: Always implement code to check that the environment variable is set before fetching the data from the backend
-    if (import.meta.env.VITE_BACKEND_URL === "" || import.meta.env.VITE_BACKEND_URL === undefined) {
+    if (
+      import.meta.env.VITE_BACKEND_URL === "" ||
+      import.meta.env.VITE_BACKEND_URL === undefined
+    ) {
       setCountdowns(mock_data);
       console.log("Environment variable is not set");
       return;
@@ -43,8 +46,19 @@ function App() {
     axios
       .get(URL)
       .then((response) => {
-        console.log(response.data);
-        setCountdowns(response.data);
+        let result: CountdownFormat[] = response.data;
+        // Sort the result by dueDate (ascending order)
+        result.sort(
+          (a, b) =>
+            new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()
+        );
+        // Remove archived items from the result and sort them to the bottom
+        const  archivedItems = result.filter((countdown) => countdown.isArchived);
+        // Filter out archived from the result
+        result = result.filter((countdown => !countdown.isArchived));
+        // Add archived items to the end of the result
+        result.push(...archivedItems);
+        setCountdowns(result);
       })
       .catch((error) => {
         console.error("Error fetching data:", error);
@@ -95,11 +109,16 @@ function App() {
   // Render countdown list component
   const renderCountdownList = (data: CountdownFormat[]) => {
     if (data.length === 0) {
-      return <div className="text-center text-white mt-4">No countdowns available</div>;
+      return (
+        <div className="text-center text-white mt-4">
+          No countdowns available
+        </div>
+      );
     }
-    const result = currentCards(data)
+    const result = currentCards(data);
     // NOTE: renderCountdown does not need to have () because it will be called automatically by the map function if it has () then it will be called immediately
-    return result.sort((a, b) => (a.isArchived === b.isArchived ? 0 : a.isArchived ? 1 : -1)).map(renderCountdown);
+
+    return result.map(renderCountdown);
   };
 
   return (
